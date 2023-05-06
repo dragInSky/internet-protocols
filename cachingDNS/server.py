@@ -10,7 +10,7 @@ SERVER_PORT = 53
 BUF_LEN = 1024
 
 
-def get_name_data(record, q_type):
+def pretty_parse(record, q_type):
     questions = record.questions
     res = ''
     if questions:
@@ -31,14 +31,14 @@ def resolve_query(data, cache):
     Разрешает доменное имя или IP-адрес в IP-адрес или доменное имя соответственно.
     """
     try:
+        # декодируем DNS пакет
         query = DNSRecord.parse(data)
 
-        print(query.q.qtype, query.q.qname)
         if cache.get((query.q.qtype, query.q.qname)):
             print(f'Найдена запись в кэше: {data}')
 
             record, ttl = cache.get((query.q.qtype, query.q.qname))
-            return get_name_data(record, 'A') if query.q.qtype == 1 else get_name_data(record, 'PTR')
+            return pretty_parse(record, 'A') if query.q.qtype == 1 else pretty_parse(record, 'PTR')
 
         print('Ожидание запроса')
 
@@ -48,9 +48,9 @@ def resolve_query(data, cache):
 
         if record.header.rcode == RCODE.NOERROR:
             print(f'Данные в кэше отсутствуют и будут записаны: {data}')
-            for rr in record.rr:
+            for rr in record.rr:  # проходимся по записям resource record
                 cache[(rr.rtype, rr.rname)] = (record, time.time() + rr.ttl)
-            return get_name_data(record, 'PTR') if query.q.qtype == 12 else get_name_data(record, 'A')
+            return pretty_parse(record, 'PTR') if query.q.qtype == 12 else pretty_parse(record, 'A')
 
         return None
 
@@ -63,7 +63,8 @@ def server_cycle(cache):
     # Основной цикл сервера
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         s.bind((SERVER_ADDRESS, SERVER_PORT))
-        s.settimeout(5)  # устанавливаем таймаут на получение запроса
+        # устанавливаем таймаут на получение запроса
+        s.settimeout(5)
         print(f'Сервер запущен на: {SERVER_ADDRESS}:{SERVER_PORT}')
         while True:
             try:
@@ -102,7 +103,7 @@ def save(cache):
         pickle.dump(cache, f)
 
 
-def file_load():
+def load():
     # Загружаем данные из файла, если он существует
     try:
         with open('cache.txt', 'rb') as f:
@@ -117,7 +118,7 @@ def file_load():
 
 
 def main():
-    cache = file_load()
+    cache = load()
 
     server_cycle(cache)
 

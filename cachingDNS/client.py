@@ -15,11 +15,14 @@ def main():
     if bool(re.match(re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'), line)):
         q_type = 'PTR'
         lines = line.split('.')
+        # преобразование в обратный DNS-запрос
+        # 5.255.255.242 -> 242.255.255.5.in-addr.arpa
         line = lines[3] + '.' + lines[2] + '.' + lines[1] + '.' + lines[0] + '.in-addr.arpa'
 
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         try:
             s.settimeout(5)
+            # создаем пакет DNS запроса
             data = DNSRecord.question(line, q_type).pack()
             s.sendto(data, (HOST, PORT))
 
