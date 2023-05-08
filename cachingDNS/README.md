@@ -24,4 +24,5 @@ sudo python3 client.py
 ```
 
 ### Демонстрация программы:
-...
+
+![](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDUyODNiMzk4OWM1MmM0ZWQyNDQxZGExOTllZmEyZmZiZDllZDVhNCZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/Ni68oOHlzJ8WIrVdkf/giphy.gif)
