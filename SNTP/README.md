@@ -1,5 +1,5 @@
 # internet-protocols
-## Task1.2: SNTP-server
+## Task1 (2): SNTP-server
 
 ### Описание:
 Сервер точного времени (SNTP-server).
