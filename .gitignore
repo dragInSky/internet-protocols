@@ -1,0 +1,9 @@
+.idea
+/venv
+cachingDNS/.idea
+SMTP-client/venv
+SMTP-client/.idea
+SNTP/venv
+SNTP/.idea
+vkApi/.idea
+vkApi/venv
