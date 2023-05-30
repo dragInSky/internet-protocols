@@ -1,6 +1,6 @@
-import vk_api
 import configparser
 import argparse
+import requests
 
 from tabulate import tabulate
 
@@ -23,9 +23,8 @@ def pretty_items_print(items_info, second_column, third_column):
     print(tabulate(output, headers=['id', second_column, third_column]))
 
 
-class ApiVk:
+class VkApi:
     def __init__(self, user_id):
-        self._session = vk_api.VkApi(token=get_token())
         self._user_id = user_id
 
     @staticmethod
@@ -35,42 +34,63 @@ class ApiVk:
             str_items += str(item) + ','
         return str_items.removesuffix(',')
 
+    @staticmethod
+    def request_pattern(method_name, params):
+        return f"https://api.vk.com/method/{method_name}?" \
+               f"{params}&access_token={get_token()}&v=5.131"
+
     def print_friends(self):
-        friends = self._session.method("friends.get", {"user_id": self._user_id})
+        friends = requests.get(
+            self.request_pattern("friends.get", f"user_id={self._user_id}")
+        ).json()['response']
 
         str_friends = self._items_list_to_str(friends)
 
-        friends_info = self._session.method("users.get", {"user_ids": str_friends})
+        friends_info = requests.get(
+            self.request_pattern("users.get", f"user_ids={str_friends}")
+        ).json()['response']
 
         print("Friends list:")
         pretty_items_print(friends_info, second_column='first_name', third_column='last_name')
 
     def print_followers(self):
-        followers = self._session.method("users.getFollowers", {"user_id": self._user_id})
+        followers = requests.get(
+            self.request_pattern("users.getFollowers", f"user_id={self._user_id}")
+        ).json()['response']
 
         str_followers = self._items_list_to_str(followers)
 
-        followers_info = self._session.method("users.get", {"user_ids": str_followers})
+        followers_info = requests.get(
+            self.request_pattern("users.get", f"user_ids={str_followers}")
+        ).json()['response']
 
         print("Followers list:")
         pretty_items_print(followers_info, second_column='first_name', third_column='last_name')
 
     def print_subscriptions(self):
-        subscriptions = self._session.method("users.getSubscriptions", {"user_id": self._user_id})
+        subscriptions = requests.get(
+            self.request_pattern("users.getSubscriptions", f"user_id={self._user_id}")
+        ).json()['response']
 
         group_ids = self._items_list_to_str(subscriptions['groups'])
 
-        subscriptions_info = self._session.method("groups.getById", {"group_ids": group_ids})
+        subscriptions_info = requests.get(
+            self.request_pattern("groups.getById", f"group_ids={group_ids}")
+        ).json()['response']
 
         print("Subscriptions list:")
         pretty_items_print(subscriptions_info, second_column='name', third_column='screen_name')
 
     def print_groups(self):
-        groups = self._session.method("groups.get", {"user_id": self._user_id})
+        groups = requests.get(
+            self.request_pattern("groups.get", f"user_id={self._user_id}")
+        ).json()['response']
 
         group_ids = self._items_list_to_str(groups)
 
-        groups_info = self._session.method("groups.getById", {"group_ids": group_ids})
+        groups_info = requests.get(
+            self.request_pattern("groups.getById", f"group_ids={group_ids}")
+        ).json()['response']
 
         print("Groups list:")
         pretty_items_print(groups_info, second_column='name', third_column='screen_name')
@@ -111,15 +131,15 @@ def main():
     )
     args = parser.parse_args()
 
-    api_vk = ApiVk(args.userId)
+    vk_api = VkApi(args.userId)
     if args.friends:
-        api_vk.print_friends()
+        vk_api.print_friends()
     if args.followers:
-        api_vk.print_followers()
+        vk_api.print_followers()
     if args.subscriptions:
-        api_vk.print_subscriptions()
+        vk_api.print_subscriptions()
     if args.groups:
-        api_vk.print_groups()
+        vk_api.print_groups()
 
 
 if __name__ == '__main__':
