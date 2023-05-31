@@ -11,7 +11,7 @@
 
 ### Usage:
 ```
-main.py [-h] [-i USERID] [-f] [-l] [-s] [-g] [-p]
+main.py [-h] [-i USERID] [-f] [-l] [-s] [-g]
 ```
 
 ### Optional arguments:
@@ -23,7 +23,6 @@ main.py [-h] [-i USERID] [-f] [-l] [-s] [-g] [-p]
   -l, --followers       followers print
   -s, --subscriptions   subscriptions print
   -g, --groups          groups print
-  -p, --photos          groups print
 ```
 
 ### Демонстрация программы:
